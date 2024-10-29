@@ -1,0 +1,37 @@
+---
+name: Test workflow
+
+on:
+  schedule:
+    - cron: 0 8 * * *
+  workflow_dispatch:
+
+jobs:
+  test-workflow:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create new branch
+        run: |
+          echo "update - $(date)" >> example-file.txt
+          git add .
+          git commit -m "Automated commit by GitHub Actions"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: new-update-branch
+          base: main
+          title: "Scheduled Pull Request from new-update-branch"
+          body: "This pull request was created automatically by GitHub Actions."
